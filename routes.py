@@ -22,7 +22,7 @@ from helpers import *
 
 class home(Resource):
 	def get(self):
-		return jsonify({"message":"hello world"})
+		return jsonify({"message":""})
 
 	def post(self):
 		data = request.get_json()
