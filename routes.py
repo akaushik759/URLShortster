@@ -35,6 +35,9 @@ class createURL(Resource):
 		if data['custom_url']:
 			custom_url = data['custom_url']
 
+			if len(custom_url)<4:
+				return jsonify({"message":"an error occurred","error":"short url must be greater than or equal to 4 characters"})
+
 			if isCustomURLAvailable(custom_url):
 				result_allot = allotURL(original_url,custom_url)
 
@@ -62,8 +65,9 @@ class redirectURL(Resource):
 		return jsonify({"message":"an error occurred","error":result_fetch['error']})
 
 class getAnalytics(Resource):
-	def get(self, shortcode):
-		result_fetch = getURLAnalytics(shortcode)
+	def post(self, shortcode):
+		data = request.get_json()
+		result_fetch = getURLAnalytics(shortcode, data['unique_id'])
 
 		if result_fetch['message'] = 'success':
 			return jsonify({"message":"successfully found the url analytics","data":result_fetch['data']})
@@ -71,8 +75,9 @@ class getAnalytics(Resource):
 		return jsonify({"message":"an error occurred","error":result_fetch['error']})
 
 class deleteURL(Resource):
-	def get(self, shortcode):
-		result_delete = deleteURL(shortcode)
+	def post(self, shortcode):
+		data = request.get_json()
+		result_delete = deleteURL(shortcode, data['unique_id'])
 
 		if result_delete['message'] = 'success':
 			return jsonify({"message":"successfully deleted the url"})
