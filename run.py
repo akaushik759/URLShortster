@@ -11,7 +11,7 @@ api = Api(app)
 
 api.add_resource(home,'/')
 api.add_resource(createURL,'/create')
-api.add_resource(redirectURL,'/redirect')
+api.add_resource(redirectURL,'/<shortcode>')
 api.add_resource(getAnalytics,'/<shortcode>/stats')
 
 

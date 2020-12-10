@@ -1,5 +1,6 @@
 from flask import jsonify, request
 from flask_restful import Resource
+from helpers import *
 
 #unique shortcode in response
 #if chosen shortcode available then allot
@@ -10,7 +11,14 @@ from flask_restful import Resource
 #/<shortcode>/stats shows - regd time,last accessed, no. of time accessed
 
 #timeout for URLS?
-#handle some urls hit more than the rest
+#handle some urls hit more than the rest - cache them using redis or memcached
+#each api dev key can be limited to certain no. of creations and redirections for time period
+
+#Create URL - original_url, custom_url=None
+#Redirect URL - short_url
+#Delete URL - unique_key, url_key
+#Check Stats - unique_key, short_url
+
 
 class home(Resource):
 	def get(self):
@@ -23,4 +31,58 @@ class home(Resource):
 class createURL(Resource):
 	def post(self):
 		data = request.get_json()
-		return jsonify({"message":"successfully created URL"})
+		original_url = data['original_url']
+		if data['custom_url']:
+			custom_url = data['custom_url']
+
+			if isCustomURLAvailable(custom_url):
+				result_allot = allotURL(original_url,custom_url)
+
+				if result_allot['message'] == 'success':
+					return jsonify({"message":"successfully alloted short custom URL","data":result_allot['data']})						
+
+				return jsonify({"message":"an error occurred","error":result_allot['error']})
+
+			return jsonify({"message":"an error occurred","error":"requested custom url is not available"})
+
+		result_allot = allotURL(original_url)
+
+		if result_allot['message'] = 'success':
+			return jsonify({"message":"successfully alloted short URL","data":result_allot['data']})
+
+		return jsonify({"message":"an error occurred","error":result_allot['error']})
+
+class redirectURL(Resource):
+	def get(self, shortcode):
+		result_fetch = fetchOriginalURL(shortcode)
+
+		if result_fetch['message'] = 'success':
+			return jsonify({"message":"successfully found the original url","data":result_fetch['data']})
+
+		return jsonify({"message":"an error occurred","error":result_fetch['error']})
+
+class getAnalytics(Resource):
+	def get(self, shortcode):
+		result_fetch = getURLAnalytics(shortcode)
+
+		if result_fetch['message'] = 'success':
+			return jsonify({"message":"successfully found the url analytics","data":result_fetch['data']})
+
+		return jsonify({"message":"an error occurred","error":result_fetch['error']})
+
+class deleteURL(Resource):
+	def get(self, shortcode):
+		result_delete = deleteURL(shortcode)
+
+		if result_delete['message'] = 'success':
+			return jsonify({"message":"successfully deleted the url"})
+
+		return jsonify({"message":"an error occurred","error":result_delete['error']})
+
+
+
+
+
+
+			
+
