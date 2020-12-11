@@ -1,8 +1,9 @@
-from models import *
+from .models import *
+from datetime import datetime, timezone
 
 import shortuuid
-import json
-import datetime
+import ast
+
 
 def isCustomURLAvailable(custom_url):
 	try:
@@ -27,7 +28,7 @@ def allotURL(original_url,custom_url=None):
 
 		#Allot custom url to the original url
 		try:
-			new_url = URL.objects(original_url=original_url, short_code=custom_url, unique_id=unique_id).save()
+			new_url = URL(original_url=original_url, short_code=custom_url, unique_id=unique_id).save()
 		except Exception as e:
 			return {'message':'error','error': str(e)}
 
@@ -51,7 +52,7 @@ def allotURL(original_url,custom_url=None):
 
 	#Allot the unused short url to the original url
 	try:
-		new_url = URL.objects(original_url=original_url, short_code=unused_short_url.short_code, unique_id=unique_id).save()
+		new_url = URL(original_url=original_url, short_code=unused_short_url.short_code, unique_id=unique_id).save()
 	except Exception as e:
 		return {'message':'error','error': str(e)}
 
@@ -75,20 +76,18 @@ def fetchOriginalURL(shortcode):
 	try:
 		original_url = URL.objects(short_code=shortcode).first()
 		if original_url:
-			access_times = json.loads(original_url.access_times)
-			access_times.append(datetime.datetime.utcnow())
+			access_times = ast.literal_eval(original_url.access_times if original_url.access_times else "[]")
+			access_times.append(str(datetime.now(timezone.utc)))
 
 			try:
 				update_stats = URL.objects(short_code=shortcode).update_one(set__access_times=str(access_times))
 			except Exception as e:
 				print("Error occurred while trying to update the access time of a short url "+shortcode+" : "+str(e))
 
-			return {'message':'success','data':original_url}
+			return {'message':'success','data': {"original_url":original_url.original_url}}
 		return {'message':'error','error':'short url not found in database'}
 	except Exception as e:
 		return {'message':'error','error':str(e)}
-
-	return {'message':'success','data': original_url}
 	
 
 def getURLAnalytics(shortcode, unique_id):
@@ -96,8 +95,8 @@ def getURLAnalytics(shortcode, unique_id):
 		original_url = URL.objects(short_code=shortcode).first()
 		if original_url:
 			if original_url.unique_id == unique_id:
-				access_times = json.loads(original_url.access_times)
-				last_accessed_time = access_times[-1]
+				access_times = ast.literal_eval(original_url.access_times if original_url.access_times else "[]")
+				last_accessed_time = access_times[-1] if len(access_times) else ""
 				count = len(access_times)
 				data = {
 					'registration_time' : original_url.timestamp,
@@ -113,7 +112,7 @@ def getURLAnalytics(shortcode, unique_id):
 		return {'message':'error','error':str(e)}
 
 
-def deleteURL(shortcode, unique_id):
+def deleteURLData(shortcode, unique_id):
 	try:
 		original_url = URL.objects(short_code=shortcode).first()
 		if original_url:
@@ -122,9 +121,13 @@ def deleteURL(shortcode, unique_id):
 					delete_original_url = URL.objects(short_code=shortcode).delete()
 				except Exception as e:
 					return {'message':'error','error':str(e)}
+
+				return {'message':'success','message':'URL was successfully deleted'}
 			return {'message':'error','error':'invalid unique id'}
 		return {'message':'error','error':'short url not found in database'}
 	except Exception as e:
 		return {'message':'error','error':str(e)}
+
+
 
 

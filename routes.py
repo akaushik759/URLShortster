@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from flask_restful import Resource
-from helpers import *
+from .helpers import *
 
 #unique shortcode in response
 #if chosen shortcode available then allot
@@ -25,12 +25,12 @@ class home(Resource):
 		return jsonify({"message":""})
 
 	def post(self):
-		data = request.get_json()
+		data = request.form
 		return jsonify({"message":"post done"}), 201
 
 class createURL(Resource):
 	def post(self):
-		data = request.get_json()
+		data = request.form
 		original_url = data['original_url']
 		if data['custom_url']:
 			custom_url = data['custom_url']
@@ -50,7 +50,7 @@ class createURL(Resource):
 
 		result_allot = allotURL(original_url)
 
-		if result_allot['message'] = 'success':
+		if result_allot['message'] == 'success':
 			return jsonify({"message":"successfully alloted short URL","data":result_allot['data']})
 
 		return jsonify({"message":"an error occurred","error":result_allot['error']})
@@ -59,27 +59,27 @@ class redirectURL(Resource):
 	def get(self, shortcode):
 		result_fetch = fetchOriginalURL(shortcode)
 
-		if result_fetch['message'] = 'success':
+		if result_fetch['message'] == 'success':
 			return jsonify({"message":"successfully found the original url","data":result_fetch['data']})
 
 		return jsonify({"message":"an error occurred","error":result_fetch['error']})
 
 class getAnalytics(Resource):
 	def post(self, shortcode):
-		data = request.get_json()
+		data = request.form
 		result_fetch = getURLAnalytics(shortcode, data['unique_id'])
 
-		if result_fetch['message'] = 'success':
+		if result_fetch['message'] == 'success':
 			return jsonify({"message":"successfully found the url analytics","data":result_fetch['data']})
 
 		return jsonify({"message":"an error occurred","error":result_fetch['error']})
 
 class deleteURL(Resource):
 	def post(self, shortcode):
-		data = request.get_json()
-		result_delete = deleteURL(shortcode, data['unique_id'])
+		data = request.form
+		result_delete = deleteURLData(shortcode, data['unique_id'])
 
-		if result_delete['message'] = 'success':
+		if result_delete['message'] == 'success':
 			return jsonify({"message":"successfully deleted the url"})
 
 		return jsonify({"message":"an error occurred","error":result_delete['error']})
