@@ -1,17 +1,26 @@
 '''
-This script generates short urls based on the given input length within the range of 1-6
+This script generates short urls of length 6
 Before inserting into the ShortURL db it checks if the short url already exists, if yes then it doesn't insert it
+The operation can be paused, resumed and stopped by entering p,r and s respectively.
 '''
 
 from models import *
 
-characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+import threading
+import os
+
+pause_flag = False
+stop_flag = False
 added_count = 0
 error_count = 0
+characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 
 #Recursive function to generate all combinations of short urls
 def combos(prefix,char_len,remaining):
-	global added_count, error_count
+	global pause_flag, stop_flag, added_count, error_count
+	if stop_flag:
+		quit()
 	if remaining == 0:
 		try:
 			already_exists = ShortURL.objects(short_code=prefix).first()
@@ -24,21 +33,37 @@ def combos(prefix,char_len,remaining):
 		return
 
 	for i in range(char_len):
-		combos(prefix+characters[i],char_len,remaining-1)
-    
+	    while(pause_flag):
+	    	pass
+	    combos(prefix+characters[i],char_len,remaining-1)
 
-try:
-	code_length = int(input("Enter the length of short codes you want to generate\n"))
-	if code_length<1 or code_length>6:
-		print("Please enter a number >0 and <= 6")
-		quit()
-except ValueError:
-	print("Invalid input, please enter a valid number")
-except Exception as e:
-	print("An error :"+str(e)+" occurred")
-else:
-	print("Please wait, adding new ShortURLs to the database...")
-	combos('',len(characters),code_length)
-	print("Successfully added : "+str(added_count)+" short URLs")
-	print("Error adding : "+str(error_count)+" short URLs")
-	print("Script completed its operation")
+#To keep checking if the combos function has completed execution and then stop the script
+def checkCombosFunction():
+	global added_count,error_count
+	while(True):
+		if not thread1.is_alive():
+			print("Successfully added : "+str(added_count)+" short URLs")
+			print("Error adding : "+str(error_count)+" short URLs")
+			print("Script completed its operation")
+			os._exit(1)
+	return
+
+
+thread1 = threading.Thread(target=combos, args=('',len(characters),6), kwargs={})
+thread1.start()
+
+thread2 = threading.Thread(target=checkCombosFunction, args=(), kwargs={})
+thread2.start()
+
+while(True):
+	user_input = input("Enter S to stop operation\nR to resume insertion to database\nP to pause insertion to database:\n\n").strip().lower()
+	if user_input == 's':
+		stop_flag = True
+		break
+	if user_input == 'r':
+		pause_flag = False
+		print("Resumed")
+	if user_input == 'p':
+		pause_flag = True
+		print("Paused")
+		
