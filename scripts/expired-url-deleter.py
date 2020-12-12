@@ -3,21 +3,14 @@ This script retrieves all the URLs which are older than 6 months (180 days) and 
 For each deleted URL it updates it status (used = False) in the ShortURL db for reuse
 '''
 
-from mongoengine import *
+
 from datetime import datetime, timezone, timedelta
 
-connect('shortster', host='localhost', port=27017)
+from models import *
 
-class URL(Document):
-	original_url = URLField(required=True)
-	short_code = StringField(required=True, unique=True)
-	timestamp = DateTimeField(default=datetime.now(timezone.utc))
-	access_times = StringField()
-	unique_id = StringField(required=True)
 
-class ShortURL(Document):
-	short_code = StringField(required=True, unique=True)
-	used = BooleanField(required=True, default=False)
+print("Please wait, deleting expired URLs from the database...")
+
 
 #Get 6 month old datetime object for db query
 six_month_old_date = datetime.now(timezone.utc) - timedelta(days=180)
