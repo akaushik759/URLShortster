@@ -1,5 +1,6 @@
 from flask import jsonify, request
 from flask_restful import Resource
+
 from .helpers import *
 
 #unique shortcode in response
@@ -75,7 +76,7 @@ class getAnalytics(Resource):
 		return jsonify({"message":"an error occurred","error":result_fetch['error']})
 
 class deleteURL(Resource):
-	def post(self, shortcode):
+	def delete(self, shortcode):
 		data = request.form
 		result_delete = deleteURLData(shortcode, data['unique_id'])
 

@@ -1,9 +1,15 @@
 from flask import Flask
 
 from flask_restful import Resource, Api
+from flask_redis import FlaskRedis
 
 #Creating flask app
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = '1@$5323as24d'
+app.config['REDIS_URL'] = "redis://localhost:6379/0"
+
+redis_client = FlaskRedis(app)
 
 #API object
 api = Api(app)

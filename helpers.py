@@ -1,4 +1,5 @@
 from .models import *
+from .run import redis_client
 from datetime import datetime, timezone
 
 import shortuuid
@@ -74,11 +75,15 @@ def allotURL(original_url,custom_url=None):
 
 def fetchOriginalURL(shortcode):
 	try:
+		cached_url = redis_client.get(shortcode)
+		if cached_url:
+			return {'message':'success','data': {"original_url":cached_url.decode('utf-8')}}
 		original_url = URL.objects(short_code=shortcode).first()
 		if original_url:
 			access_times = ast.literal_eval(original_url.access_times if original_url.access_times else "[]")
 			access_times.append(str(datetime.now(timezone.utc)))
-
+			if len(access_times)>=100:
+				redis_client.set(shortcode,str(original_url.original_url).encode('utf-8'))
 			try:
 				update_stats = URL.objects(short_code=shortcode).update_one(set__access_times=str(access_times))
 			except Exception as e:
