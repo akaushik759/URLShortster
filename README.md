@@ -14,7 +14,7 @@ An API to shorten long URLs
 
 * These instructions are for a Ubuntu system (specifically Ubuntu 18.04)
 
-* #### Dependencies
+ #### Dependencies
 * Please ensure that you have python3 installed, after which you may create a virtual environment, the steps are mentioned [here](https://naysan.ca/2019/08/05/install-python-3-virtualenv-on-ubuntu/).
 
 * Git clone this repo to your PC
@@ -39,33 +39,33 @@ An API to shorten long URLs
 
 
 
-* #### Setup and Running it
+ #### Setup and Running it
 * In the project directory run the following commands
     ```
-        $ export FLASK_APP=run.py
-        $ export FLASK_DEBUG=1
-        $ flask run
+    (venv)$ export FLASK_APP=run.py
+    (venv)$ export FLASK_DEBUG=1
+    (venv)$ flask run
     ```
 * The above commands will start the server at localhost port 5000
 
 * I have avoided using environment variable since there weren't any sensitive personal keys, all are generic ids
 
-* #### Testing
+ #### Testing
     On a new terminal, goto the tests folder and run the following commands:
 
 * To test the /create endpoint
     ```
     (venv)$ pytest test_create_url.py -s
     ```
-* To test the /<shortcode> endpoint
+* To test the /< shortcode > endpoint
     ```
     (venv)$ pytest test_redirect_url.py -s
     ```
-* To test the /<shortcode>/stats endpoint
+* To test the /< shortcode >/stats endpoint
     ```
     (venv)$ pytest test_stats_url.py -s
     ```
-* To test the /<shortcode>/delete endpoint
+* To test the /< shortcode >/delete endpoint
     ```
     (venv)$ pytest test_delete_url.py -s
     ```
