@@ -1,31 +1,112 @@
-import unittest
+from printing_data import *
+
+import requests
 import json
 
-from app import app
-from database.db import db
+def test_with_correct_data():
+    test_url = "https://www.google.com"
+    url = 'http://127.0.0.1:5000/create'
+    
+    # Additional headers.
+    headers = {'Content-Type':"application/json; charset=utf-8"} 
+
+    # Body
+    payload = {'original_url': test_url}
+    
+    # send request
+    resp = requests.post(url, headers=headers, data=json.dumps(payload))       
+    
+    # Validate response headers and body contents, e.g. status code.
+    resp_body = resp.json()
+
+    short_code = resp_body['data']['short_code']
+
+    url_new = 'http://127.0.0.1:5000/'+short_code
+
+    # send request
+    resp = requests.get(url_new, headers=headers) 
+    resp_body = resp.json()
 
 
-class SignupTest(unittest.TestCase):
+    assert resp.status_code == 200
+    assert resp_body['status'] == 'success'
+    assert resp_body['message'] == 'successfully found the original url'
 
-    def setUp(self):
-        self.app = app.test_client()
-        self.db = db.get_db()
+    print_request(resp.request)
+    print_response(resp)
 
-    def test_successful_signup(self):
-        # Given
-        payload = json.dumps({
-            "email": "paurakh011@gmail.com",
-            "password": "mycoolpassword"
-        })
+def test_with_not_used_short_url():
+    test_url = "https://www.google.com"
+    url = 'http://127.0.0.1:5000/ahaa'
+    
+    # send request
+    resp = requests.get(url) 
+    resp_body = resp.json()
 
-        # When
-        response = self.app.post('/api/auth/signup', headers={"Content-Type": "application/json"}, data=payload)
 
-        # Then
-        self.assertEqual(str, type(response.json['id']))
-        self.assertEqual(200, response.status_code)
+    assert resp.status_code == 200
+    assert resp_body['status'] == 'error'
+    assert resp_body['message'] == 'short url not found in database'
 
-    def tearDown(self):
-        # Delete Database collections after the test is complete
-        for collection in self.db.list_collection_names():
-            self.db.drop_collection(collection)
+    print_request(resp.request)
+    print_response(resp)
+
+def test_with_invalid_short_url():
+    test_url = "https://www.google.com"
+    url = 'http://127.0.0.1:5000/a'
+    
+    # send request
+    resp = requests.get(url)       
+
+    resp_body = resp.json()
+
+
+    assert resp.status_code == 400
+    assert resp_body['status'] == 'error'
+    assert resp_body['message'] == 'invalid short url'
+
+    print_request(resp.request)
+    print_response(resp)
+
+def test_with_wrong_method_types():
+    test_url = "https://www.apple.com"
+    url = 'http://127.0.0.1:5000/create'
+    
+    # Additional headers.
+    headers = {'Content-Type':"application/json; charset=utf-8"} 
+
+    # Body
+    payload = {'original_url': test_url}
+    
+    # send request
+    resp = requests.post(url, headers=headers, data=json.dumps(payload))       
+    
+    # Validate response headers and body contents, e.g. status code.
+    resp_body = resp.json()
+
+    short_code = resp_body['data']['short_code']
+
+    url_new = 'http://127.0.0.1:5000/'+short_code
+
+    # send request
+    resp1 = requests.post(url_new, headers=headers) 
+    resp2 = requests.put(url_new, headers=headers) 
+    resp3 = requests.delete(url_new, headers=headers) 
+    
+    
+    # Validate response headers and body contents, e.g. status code.
+
+    assert resp1.status_code == 405
+    assert resp2.status_code == 405
+    assert resp3.status_code == 405
+
+
+    print_request(resp1.request)
+    print_response(resp1)
+
+    print_request(resp2.request)
+    print_response(resp2)
+
+    print_request(resp3.request)
+    print_response(resp3)
+    

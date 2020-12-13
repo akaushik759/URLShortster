@@ -1,10 +1,9 @@
 from printing_data import *
-from models import *
 
 import requests
 import json
 
-'''def test_with_correct_data_no_custom_url():
+def test_with_correct_data_no_custom_url():
     test_url = "https://www.google.com"
     url = 'http://127.0.0.1:5000/create'
     
@@ -59,17 +58,19 @@ def test_with_correct_data_custom_url():
 
 def test_with_already_used_custom_url():
     test_url = "https://www.google.com"
-    custom_url = 'abcc'
+    custom_url = 'hello-world'
     url = 'http://127.0.0.1:5000/create'
     
     # Additional headers.
     headers = {'Content-Type':"application/json; charset=utf-8"} 
 
-    # Body
     payload = {'original_url': test_url,'custom_url': custom_url}
-    
-    # send request
-    resp = requests.post(url, headers=headers, data=json.dumps(payload))       
+
+    # To create first custom url
+    resp1 = requests.post(url, headers=headers, data=json.dumps(payload))     
+
+    # Second request with already create custom url
+    resp = requests.post(url, headers=headers, data=json.dumps(payload))    
     
     # Validate response headers and body contents, e.g. status code.
     resp_body = resp.json()
@@ -169,7 +170,53 @@ def test_with_original_url_not_string_type():
     assert resp_body['message'] == "original url needs to be a string"
 
     print_request(resp.request)
-    print_response(resp)'''
+    print_response(resp)
+
+
+def test_with_wrong_body_content():
+    url = 'http://127.0.0.1:5000/create'
+    
+    # Additional headers.
+    headers = {'Content-Type':"application/json; charset=utf-8"} 
+
+    # Body
+    payload = {"key1":"value","1":2,"key2":True}
+    
+    # send request
+    resp = requests.post(url, headers=headers, data=json.dumps(payload))       
+    
+    # Validate response headers and body contents, e.g. status code.
+    resp_body = resp.json()
+
+    assert resp.status_code == 422
+    assert resp_body['status'] == 'error'
+    assert resp_body['message'] == "original url not found in your request"
+
+    print_request(resp.request)
+    print_response(resp)
+
+def test_with_wrong_header():
+    url = 'http://127.0.0.1:5000/create'
+    
+    # Additional headers.
+    headers = {'Content-Type':"application/xml; charset=utf-8"} 
+
+    # Body
+    payload = {"key1":"value","1":2,"key2":True}
+    
+    # send request
+    resp = requests.post(url, headers=headers, data=json.dumps(payload))       
+    
+    # Validate response headers and body contents, e.g. status code.
+    resp_body = resp.json()
+
+    assert resp.status_code == 400
+    assert resp_body['status'] == 'error'
+    assert resp_body['message'] == "request header needs to be json type"
+
+    print_request(resp.request)
+    print_response(resp)
+    
 
 def test_with_wrong_method_types():
     test_url = "https://www.google.com"

@@ -40,6 +40,10 @@ class createURL(Resource):
 		abort(405)
 
 	def post(self):
+		if request.headers['Content-Type'] != 'application/json; charset=utf-8':
+			print(request.headers['Content-Type'])
+			return make_response(jsonify({"status":"error","message":"request header needs to be json type"}), 400)
+		
 		data = request.get_json()
 
 		if 'original_url' not in data:
@@ -78,70 +82,95 @@ class createURL(Resource):
 		return make_response(jsonify({"status":"error","message":result_allot['message']}), 500)
 
 class redirectURL(Resource):
-	def post(self):
+	def post(self, shortcode):
 		abort(405)
 
-	def put(self):
+	def put(self, shortcode):
 		abort(405)
 
-	def delete(self):
+	def delete(self, shortcode):
 		abort(405)
 
 	def get(self, shortcode):
+
+		if len(shortcode)<4:
+			return make_response(jsonify({"status":"error","message":"invalid short url"}), 400)
+
 		result_fetch = fetchOriginalURL(shortcode)
 
 		if result_fetch['status'] == 'success':
 			return make_response(jsonify({"status":"success","message":"successfully found the original url","data":result_fetch['data']}), 200)
 
+		if result_fetch['message'] == 'short url not found in database':
+			return make_response(jsonify({"status":"error","message":result_fetch['message']}), 200)
+
 		return make_response(jsonify({"status":"error","message":result_fetch['message']}), 500)
 
 class getAnalytics(Resource):
-	def post(self):
+	def post(self, shortcode):
 		abort(405)
 
-	def put(self):
+	def put(self, shortcode):
 		abort(405)
 
-	def delete(self):
+	def delete(self, shortcode):
 		abort(405)
 
 	def get(self, shortcode):
 		try:
 			uid = request.headers['unique_id']
 		except KeyError:
-			return make_response(jsonify({"status":"error","message":"unique id not found in header"}), 500)
+			return make_response(jsonify({"status":"error","message":"unique id not found in header"}), 400)
 		except Exception as e:
-			return make_response(jsonify({"status":"error","message":str(e)}), 500)
+			return make_response(jsonify({"status":"error","message":str(e)}), 400)
+
+		if not isinstance(uid, str):
+			return make_response(jsonify({"status":"error","message":"unique id needs to be a string"}), 422)
 
 		result_fetch = getURLAnalytics(shortcode, uid)
 
 		if result_fetch['status'] == 'success':
 			return make_response(jsonify({"status":"success","message":"successfully found the url analytics","data":result_fetch['data']}), 200)
 
+		if result_fetch['message'] == 'short url not found in database':
+			return make_response(jsonify({"status":"error","message":result_fetch['message']}), 200)
+
+		if result_fetch['message'] == 'invalid unique id':
+			return make_response(jsonify({"status":"error","message":result_fetch['message']}), 400)
+
 		return make_response(jsonify({"status":"error","message":result_fetch['message']}), 500)
 
 class deleteURL(Resource):
-	def get(self):
+	def get(self, shortcode):
 		abort(405)
 
-	def post(self):
+	def post(self, shortcode):
 		abort(405)
 
-	def put(self):
+	def put(self, shortcode):
 		abort(405)
 
 	def delete(self, shortcode):
 		try:
 			uid = request.headers['unique_id']
 		except KeyError:
-			return make_response(jsonify({"status":"error","message":"unique id not found in header"}), 500)
+			return make_response(jsonify({"status":"error","message":"unique id not found in header"}), 400)
 		except Exception as e:
-			return make_response(jsonify({"status":"error","message":str(e)}), 500)
+			return make_response(jsonify({"status":"error","message":str(e)}), 400)
+
+		if not isinstance(uid, str):
+			return make_response(jsonify({"status":"error","message":"unique id needs to be a string"}), 422)
 
 		result_delete = deleteURLData(shortcode, uid)
 
 		if result_delete['status'] == 'success':
 			return make_response(jsonify({"status":"success","message":"successfully deleted the url"}), 200)
+
+		if result_delete['message'] == 'short url not found in database':
+			return make_response(jsonify({"status":"error","message":result_delete['message']}), 200)
+
+		if result_delete['message'] == 'invalid unique id':
+			return make_response(jsonify({"status":"error","message":result_delete['message']}), 400)
 
 		return make_response(jsonify({"status":"error","message":result_delete['message']}), 500)
 
