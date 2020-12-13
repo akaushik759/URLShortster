@@ -56,7 +56,7 @@ thread2 = threading.Thread(target=checkCombosFunction, args=(), kwargs={})
 thread2.start()
 
 while(True):
-	user_input = input("Enter S to stop operation\nR to resume insertion to database\nP to pause insertion to database:\n\n").strip().lower()
+	user_input = input("Enter - \nS to stop operation\nR to resume insertion to database\nP to pause insertion to database:\n\n").strip().lower()
 	if user_input == 's':
 		stop_flag = True
 		break

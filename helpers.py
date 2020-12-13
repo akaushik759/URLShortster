@@ -69,7 +69,7 @@ def allotURL(original_url,custom_url=None):
 			
 		return {'status':'error','message': str(e)}
 
-	return {'status':'success','message': new_url}
+	return {'status':'success','data': new_url}
 
 
 

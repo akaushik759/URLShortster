@@ -1,4 +1,4 @@
-from flask import jsonify, request, make_response
+from flask import jsonify, request, make_response, abort
 from flask_restful import Resource
 
 from .helpers import *
@@ -30,10 +30,30 @@ class home(Resource):
 		return make_response(jsonify({"message":"post done"}), 201)
 
 class createURL(Resource):
+	def get(self):
+		abort(405)
+
+	def put(self):
+		abort(405)
+
+	def delete(self):
+		abort(405)
+
 	def post(self):
-		data = request.form
+		data = request.get_json()
+
+		if 'original_url' not in data:
+			return make_response(jsonify({"status":"error","message":"original url not found in your request"}), 422)
+		
 		original_url = data['original_url']
-		if data['custom_url']:
+
+		if not isinstance(original_url, str):
+			return make_response(jsonify({"status":"error","message":"original url needs to be a string"}), 422)
+
+		if len(original_url) == 0:
+			return make_response(jsonify({"status":"error","message":"original url cannot be empty string"}), 422)
+
+		if 'custom_url' in data:
 			custom_url = data['custom_url']
 
 			if len(custom_url)<4:
@@ -52,11 +72,21 @@ class createURL(Resource):
 		result_allot = allotURL(original_url)
 
 		if result_allot['status'] == 'success':
+			print(str(result_allot))
 			return make_response(jsonify({"status":"success","message":"successfully alloted short URL","data":result_allot['data']}), 201)
 
 		return make_response(jsonify({"status":"error","message":result_allot['message']}), 500)
 
 class redirectURL(Resource):
+	def post(self):
+		abort(405)
+
+	def put(self):
+		abort(405)
+
+	def delete(self):
+		abort(405)
+
 	def get(self, shortcode):
 		result_fetch = fetchOriginalURL(shortcode)
 
@@ -66,6 +96,15 @@ class redirectURL(Resource):
 		return make_response(jsonify({"status":"error","message":result_fetch['message']}), 500)
 
 class getAnalytics(Resource):
+	def post(self):
+		abort(405)
+
+	def put(self):
+		abort(405)
+
+	def delete(self):
+		abort(405)
+
 	def get(self, shortcode):
 		try:
 			uid = request.headers['unique_id']
@@ -82,6 +121,15 @@ class getAnalytics(Resource):
 		return make_response(jsonify({"status":"error","message":result_fetch['message']}), 500)
 
 class deleteURL(Resource):
+	def get(self):
+		abort(405)
+
+	def post(self):
+		abort(405)
+
+	def put(self):
+		abort(405)
+
 	def delete(self, shortcode):
 		try:
 			uid = request.headers['unique_id']
