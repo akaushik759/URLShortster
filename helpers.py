@@ -85,7 +85,7 @@ def fetchOriginalURL(shortcode):
 			access_times.append(str(datetime.now(timezone.utc)))
 
 			#If the ShortURL has been requested 100 times then cache that URL
-			if len(access_times)>=100:
+			if len(access_times)>=2:
 				redis_client.set(shortcode,str(original_url.original_url).encode('utf-8'))
 			try:
 				update_stats = URL.objects(short_code=shortcode).update_one(set__access_times=str(access_times))

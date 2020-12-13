@@ -9,6 +9,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = '1@$5323as24d'
 app.config['REDIS_URL'] = "redis://localhost:6379/0"
 
+#Redis object
 redis_client = FlaskRedis(app)
 
 #API object
