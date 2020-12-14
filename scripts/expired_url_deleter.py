@@ -14,6 +14,7 @@ print("Please wait, deleting expired URLs from the database...")
 
 #Get 6 month old datetime object for db query
 six_month_old_date = datetime.now(timezone.utc) - timedelta(days=180)
+delete_count = 0
 
 
 try:
@@ -28,6 +29,7 @@ try:
 		else:
 			try:
 				#After successful deletion update that short code status for reuse in ShortURL db
+				delete_count = delete_count + 1
 				update_status = ShortURL.objects(short_code=each.short_code).update_one(set__used=False, upsert=True)
 			except Exception as e:
 				print("An error :"+str(e)+" occurred while updating status of short url in ShortURL Db")
@@ -36,4 +38,5 @@ except Exception as e:
 	print("An error :"+str(e)+" occurred while retreiving expired URLs from URL db")
 
 finally:
+	print("Total urls deleted : "+str(delete_count))
 	print("Script completed its operation")
