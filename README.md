@@ -1,6 +1,23 @@
 # URL Shortster
 An API to shorten long URLs
 
+## Table of Content
+
+   * [Technologies used](#technologies-used)
+   * [Installation / Usage](#installation--used)
+      * [Dependencies](#dependencies)
+      * [Setup & Running it](#setup-and-running-it)
+      * [Testing](#testing)
+   * [Database Schema](#database-schema)
+   * [Algorithm / Explanation](#algorithm--explanation)
+   * [Scripts to maintain the database](#scripts-to-maintain-the-database)
+   * [API Endpoints](#api-endpoints)
+      * [Create a short url](#create-a-short-url)
+      * [Redirect using short url](#redirect-using-short-url)
+      * [Get stats of a short url](#get-stats-of-a-short-url)
+      * [Delete short url](#delete-short-url)
+
+
 
 ## Technologies used
 * **[Python3](https://www.python.org/downloads/)**
@@ -141,7 +158,7 @@ The direct approach to building the backend of this would be -
 	User enters custom url, also they need to provide the unique_id which was given to them during url creation, so that they can view the url analytics.
 	
 	5. Delete
-	
+
 	User enters custom url, also they need to provide the unique_id which was given to them during url creation, so that they can delete the url.
 	
 	6. Each generated url will have an expiry period of 6 months, i.e. after 6 months all expired urls will be deleted and the corresponding short urls free to be reused
@@ -271,7 +288,3 @@ The direct approach to building the backend of this would be -
   
 	}
 ```
-
-
-
-		#####DELETE ROUTE CACHE REMOVAL
