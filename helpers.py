@@ -85,7 +85,7 @@ def fetchOriginalURL(shortcode):
 			access_times.append(str(datetime.now(timezone.utc)))
 
 			#If the ShortURL has been requested 100 times then cache that URL
-			if len(access_times)>=2:
+			if len(access_times)>=100:
 				redis_client.set(shortcode,str(original_url.original_url).encode('utf-8'))
 			try:
 				update_stats = URL.objects(short_code=shortcode).update_one(set__access_times=str(access_times))
@@ -129,6 +129,10 @@ def deleteURLData(shortcode, unique_id):
 					delete_original_url = URL.objects(short_code=shortcode).delete()
 				except Exception as e:
 					return {'status':'error','message':str(e)}
+
+				#Delete from cache if exists
+				if redis_client.get(shortcode):
+					redis_client.delete(shortcode)
 
 				return {'status':'success','message':'URL was successfully deleted'}
 			return {'status':'error','message':'invalid unique id'}
