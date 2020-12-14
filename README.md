@@ -1,10 +1,10 @@
 # URL Shortster
 An API to shorten long URLs
 
-## Table of Content
+## Table of Contents
 
    * [Technologies used](#technologies-used)
-   * [Installation / Usage](#installation--used)
+   * [Installation / Usage](#installation--usage)
       * [Dependencies](#dependencies)
       * [Setup & Running it](#setup-and-running-it)
       * [Testing](#testing)
